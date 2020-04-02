@@ -1,0 +1,83 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalkToTen</title>
+    <!-- Core CSS - Include with every page -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/talktoten">TalkToTen</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">{% if user.is_authenticated %}
+                        {{ user.get_short_name | default:user.username | default:'Nameless User' }}{% else %}
+                        Anonymous{% endif %}<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'password_change' %}">Change Password</a></li>
+                            <li><a href="{% url 'logout' %}">Logout</a></li>
+                        {% endif %}
+                        {% if user.is_staff %}
+                            <li><a href="{% url 'admin:index' %}">Admin Console</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+{% if messages %}
+<div class="container-fluid">
+    {% with L=DEFAULT_MESSAGE_LEVELS %}{% with dbg=L.DEBUG inf=L.INFO suc=L.SUCCESS wrn=L.WARNING err=L.ERROR %}
+    {% for message in messages %}
+        {% with l=message.level %}
+            <div class="alert-dismissable alert {% if message.tags %}{{ message.tags }}{% endif %} {% if l == err %}alert-danger{% elif l == wrn%}alert-warning{% elif l == suc %}alert-success{% else %}alert-info{% endif %}">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                {{ message }}
+            </div>
+        {% endwith %}
+    {% endfor %}
+    {% endwith %}{% endwith %}
+</div>
+{% endif %}
+
+{% block content %}
+{% endblock %}
+
+
+<!-- Core Scripts - Include with every page -->
+<script
+        src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+{% block javascript %}
+{% endblock %}
+
+
+</body>
+</html>

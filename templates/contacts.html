@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+            <h2>Manage Contacts</h2>
+
+        <form id="form" class="form-horizontal" action="" method="post" onchange="setDirty(true);" onsubmit="return formSubmit();">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            <div class="pull-right"><button type="button" id="toggle_optionals" class="btn">Show Optional Columns</button></div>
+            <div class="clearfix"></div>
+            <div class="table-responsive">
+            <table class="table table-striped table-condensed match-grid">
+                {% for form in formset %}
+                    {% if forloop.first %}
+                        <thead>
+                        <th><label>Name:</label></th>
+                        <th><label>Address:</label></th>
+                        {% for field in form.visible_fields %}
+                            <th {% if field.name == 'interest_areas' or field.name == 'level_of_support'%}class="optional-column"{% endif %}>{{ field.label_tag }}</th>
+                        {% endfor %}
+                        </thead>
+                        <tbody>
+                    {% endif %}
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+                    {%  if form.non_field_errors %}
+                        <tr>
+                        <td class="alert alert-danger" colspan="{{ form.visible_fields|length|add:2 }}">{{ form.non_field_errors }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr {% if form.non_field_errors %}class="alert alert-danger"{% endif %}>
+                        <td>{{ form.instance.resident.full_display_name }}</td>
+                        <td>{{ form.instance.resident.resident_address }}</td>
+                        {% for field in form.visible_fields %}
+                            <td {% if field.name == 'action' %}class="action-input"{% elif field.name == 'interest_areas' or field.name == 'level_of_support' %}class="optional-column"{% endif %}>
+                                {{ field.errors }}
+                                {{ field }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            <p>
+                <button class="btn btn-primary" type="submit" name="update">Save contact info</button></p>
+        </form>
+            <p>
+               <button class="btn btn-default" onclick="location.href='../match/'; return false;">Find more contacts to add</button>
+            </p>
+
+    </div>
+{% endblock %}
+
+{% block javascript %}
+  <script>
+    var dirty = false;
+    function setDirty(d) {
+        dirty = !!d;
+    }
+    function isDirty() {
+        return dirty;
+    }
+
+    function invalidInput(e) {
+        return e.is(':invalid') || !(e.val());
+    }
+
+    function formSubmit() {
+        var mailErrors = $('.action-input option[value="mail"]:selected').closest('tr').find('input[name*=email]').filter(
+          function(){
+              return invalidInput($(this));
+          }
+        ).length;
+
+        var submitErrors = $('.action-input option[value="follow"]:selected').closest('tr').filter(
+          function(){
+              var mail = $(this).find('input[name*=email]');
+              var phone = $(this).find('input[name*=phone]');
+              return invalidInput(mail) && invalidInput(phone);
+          }
+        ).length;
+
+        var s = 'Ready to submit the form?';
+        if (mailErrors || submitErrors) {
+            s = '';
+            if (mailErrors)
+                s += 'You are asking to send email to an invalid address. ';
+            if (submitErrors)
+                s += 'You are asking to submit contact info without a valid email or phone number.  '
+            s += 'Are you sure you want to submit?'
+        }
+        var ret = confirm(s);
+        if (ret == false) {
+            return false;
+        } else {
+            setDirty(false);
+            return true;
+        }
+    }
+    window.addEventListener('beforeunload', function(e) {
+       if (!isDirty()) return;
+       var msg = 'This page is asking you to confirm that you want to leave - data you have entered may not be saved.';
+        (e || window.event).returnValue = msg;
+        return msg;
+    });
+    $(function(){
+        var optionalShown = false;
+        $('#toggle_optionals').click(function(){
+            optionalShown = !optionalShown;
+            $('.optional-column').toggle(optionalShown);
+            $('#toggle_optionals').text(optionalShown ? 'Hide Optional Columns' : 'Show Optional Columns');
+        });
+        if ($('select[name*=interest_areas]>option[selected], select[name*=level_of_support]>option[selected][value!=""]').length != 0) {
+            $('#toggle_optionals').click()
+        }
+    });
+
+  </script>
+{% endblock %}

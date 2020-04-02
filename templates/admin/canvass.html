@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvassing</title>
+    <script src="https://api.mqcdn.com/sdk/mapquest-js/v1.1.0/mapquest.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/mapquest-js/v1.1.0/mapquest.css"/>
+    <style>
+        html {
+            font: 0.8em "Open Sans", sans-serif;
+        }
+
+        table {
+       border-collapse: collapse;
+        width: 100%;
+    }
+        span.households {
+            font-size: 80%
+        }
+        th,td{
+            text-align: left;
+            padding: 8px;
+            border: 1px solid gray;
+        }
+        td.level_of_support_1, td.level_of_support_2 {
+            font-weight: 900;
+            font-size: 110%;
+        }
+        .map {
+            width: 100%;
+            height: 500px;
+        }
+        .break {page-break-after: always;}
+        @media screen {
+            .break {
+                border-bottom: 3px dotted gray;
+                margin-top: 1em;
+                margin-bottom: 1em;
+            }
+        }
+        body.simple .advanced {
+            display: none
+        }
+        body.simple .notes {
+            width: 50%
+        }
+        body.just_addresses .num_residents {
+            display: none;
+        }
+        body.just_addresses .not_address {
+            display: none
+        }
+        body.just_addresses tr.resident {
+            display: none
+        }
+        body.just_addresses tr.resident.new_address {
+            display: table-row;
+        }
+        @media print  {
+            .no-print {
+              display: none;
+            }
+        }
+        .intro {
+            border: 1px solid black;
+        }
+        .canvasser_name {
+            border: 1px solid black;
+        }
+        .canvassing_instructions {
+            font-size: 90%;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="no-print">
+    <h2>Canvassing document</h2>
+        (This section should not appear when you print the document)<br>
+                <input type="checkbox" id="just_addresses" name="just_addresses" value="just_addresses" onclick="just_addresses()">
+        <label for="just_addresses"><b>Just addresses</b></label>
+    <br>
+        When the checkbox is checked, the canvassing table will only show distinct addresses and no other columns.<br>
+        When the checkbox is unchecked, the canvassing table will show other columns as described below
+        <br>
+
+    <br>
+            <input type="checkbox" id="simplify" name="simplify" value="simple" onclick="simplify()" checked="checked">
+        <label for="simplify"><b>Simplified turf</b></label>
+     <br>
+        When the checkbox is checked, the canvassing table will have fewer columns, leaving more room for notes.<br>
+        When the checkbox is unchecked, the the canvassing table will contain extra columns like "profession", "child", etc.
+<br>
+
+
+     </div>
+    <div class="no-print break"><br></div>
+    {% for canvass_group in canvass_groups %}
+  {% if not forloop.first %}<div class="break"><br></div>{% endif %}
+        {% with turfnum=forloop.counter %}
+   <div class="canvass_group">
+       <h2 class="canvasser_name">Canvasser Name: </h2>
+       <h2>Turf #{{ turfnum }} Map <span class="households">({{ canvass_group.num_households }} households<span class="num_residents">, {{ canvass_group.num_residents }} residents</span>)</span></h2>
+   <div class="map"></div>
+    <div class="break"><br></div>
+  {% for street_segment in canvass_group.street_segments %}
+  {% if not forloop.first %}<div class="break"><br></div>{% endif %}
+  <table class="street-segment">
+    <thead>
+      <tr>
+          <th colspan="100"><h3>Turf #{{ turfnum }}, Map Marker #{{ forloop.counter }}: {{ street_segment.street_segment }}
+              <span class="households"> ({{ street_segment.num_households }} households<span class="num_residents">, {{ street_segment.num_residents }} residents</span>)</span>
+          </h3></th>
+      </tr>
+      <tr>
+        <th>Address</th>
+                  <th class="not_address">Name (AgeG) FC</th>
+          <th class="not_address">Others</th>
+        <th class="advanced not_address">DOB</th>
+          <th class="not_address">Email, Phone</th>
+          <th class="not_address">Lvl Sup</th>
+          <th class="not_address"># Elec</th>
+        <th class="advanced not_address">Profession</th>
+        <th class="advanced not_address">Child</th>
+        <th class="advanced not_address">Dog</th>
+        <th class="advanced not_address">Univ</th>
+          <th class="advanced not_address">Time in home</th>
+          <th class="advanced not_address">$</th>
+          <th class="not_address">Contact</th>
+          <th class="notes not_address">Notes</th>
+          <th class="not_address">Polling Place</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for resident in street_segment.residents %}
+      <tr class="resident {% ifchanged resident.resident_address %}new_address{% endifchanged %}" data-latitude="{{ resident.household.latitude }}" data-longitude="{{ resident.household.longitude }}">
+        <td>{{ resident.resident_address }}</td>
+          <td class="not_address">{{ resident.first_name }} {{ resident.last_name }} ({{ resident.age }}{{ resident.gender }})
+           {% if resident.category_fams %}
+              F{% if resident.voted_recent_municipal %}M{% elif resident.voted_2016_11_08 %}P{% else %}?{% endif %}
+           {% endif %}
+          </td>
+          <td class="not_address">{{ resident.other_residents_at_address }}</td>
+          <td class="advanced not_address">{{ resident.date_of_birth|date:"m/d/y"  }}</td>
+          <td class="not_address">{{ resident.email }} {{ resident.phone }}</td>
+        <td class="not_address level_of_support_{{ resident.level_of_support|default_if_none:'N' }}">{{ resident.level_of_support|default_if_none:"" }}</td>
+          <td class="not_address">{{ resident.count_elections }}</td>
+          <td class="advanced not_address">{{ resident.occupation }}</td>
+        <td class="advanced not_address">{{ resident.child_age_1|default_if_none:"" }}</td>
+        <td class="advanced not_address">{{ resident.dog_names }}</td>
+        <td class="advanced not_address">{{ resident.university_affiliation_1 }}</td>
+          <td class="advanced not_address">{{ resident.length_of_time_in_home }}</td>
+          <td class="advanced not_address">{{ resident.campaign_donation_amount}}</td>
+          <td class="not_address">{{ resident.contacts }}</td>
+          <td class="notes not_address">{{ resident.notes }}</td>
+          <td class="not_address">{{ resident.household.polling_place.name }}, {{ resident.household.polling_place.address }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
+        </div>
+        {% endwith %}
+{% endfor %}
+
+
+
+</body>
+<script>
+
+    function simplify() {
+        document.querySelector("body").classList.toggle("simple",document.getElementById("simplify").checked);
+    }
+    simplify();
+
+    function just_addresses() {
+        document.querySelector("body").classList.toggle("just_addresses", document.getElementById("just_addresses").checked);
+    }
+    just_addresses();
+
+    // get a dev key to mapquest
+    L.mapquest.key = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+
+    Array.from(document.querySelectorAll('div.canvass_group')).forEach(function(canvassGroupElement) {
+
+        var map = L.mapquest.map(canvassGroupElement.querySelector('div.map'), {
+            center: [42.3876, -71.0995],
+            layers: L.mapquest.tileLayer('map'),
+            zoom: 14,
+            scrollWheelZoom: false
+        });
+        var bounds = null;
+        Array.from(canvassGroupElement.querySelectorAll('table.street-segment')).forEach(function (table, idx) {
+            var latlongs = Array.from(table.querySelectorAll('tr.resident')).map(function (tr) {
+                return [tr.dataset.latitude, tr.dataset.longitude];
+            });
+            var polyline = L.polyline(latlongs, {color: 'red'}).addTo(map);
+            pbounds = polyline.getBounds();
+            if (!bounds) {
+                bounds = pbounds;
+            } else {
+                bounds.extend(pbounds);
+            }
+            L.marker(latlongs[0], {
+                icon: L.mapquest.icons.marker({
+                    primaryColor: '#7f0000',
+                    secondaryColor: '#ff0000',
+                    shadow: true,
+                    size: 'sm',
+                    symbol: idx + 1
+                })
+            }).addTo(map);
+
+        });
+        if (bounds) {
+            map.fitBounds(bounds, {padding: [300, 0]});
+        }
+
+    });
+</script>
+</html>

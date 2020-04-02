@@ -1,0 +1,57 @@
+{% load i18n %}
+<script type="text/javascript">var goTags = function(tags, sense, caseSensitive, parts) {
+    var val = tags.trim()+"::"+sense+"::"+caseSensitive+"::"+parts;
+    var search = window.location.search.replace(/[?&]tags=[^&]*/i,'').replace(/^&/,'?');
+    if (search.trim()==='') search = '?';
+    search += (search.endsWith('?')?'':'&') + 'tags='+encodeURIComponent(val);
+    window.location = window.location.pathname + search;
+};
+   var selectTags = function(){
+       var selEl = document.getElementById("selectTag");
+       if (selEl.selectedIndex < 1) return;
+       var selVal = selEl.value
+       var tagInput = document.getElementById("typeTagInput");
+       if (selEl) {
+           var cur = tagInput.value.split(',').map(function(x){return x.trim()}).filter(function(x){return x;});
+           if (cur.indexOf(selEl.value) == -1) {
+               cur.push(selEl.value);
+               tagInput.value = cur.join(", ");
+           }
+           selEl.selectedIndex = 0;
+       }
+   }
+</script>
+<h3>By {{ title }}</h3>
+{% with choices.0 as i %}
+<ul class="admin-filter-{{ title|cut:' ' }}">
+    <li>
+    <form method="get" onsubmit="goTags(this.tags.value,this.querySelector('input[name=sense]:checked').value, this.caseSensitive.checked?'Y':'N', this.parts.checked?'Y':'N'); return false;">
+                 tags, type: <input id="typeTagInput" type="text" name="tags" value="{{ i.tags|default_if_none:"" }}"/>
+
+        <br/>
+
+        tags, choose: <select id="selectTag" onchange="selectTags()">
+       <option>----Choose----</option>
+        {%  for tag in spec.tags %}{% if tag.strip %}<option>{{ tag.strip }}</option>{% endif %}{% endfor %}
+        </select>
+        <br>
+        <input type="radio" id="senseIntersection"
+     name="sense" value="I" {% if i.sense != 'U' %}checked{% endif %}>
+    <label for="senseIntersection">All tags</label>
+
+    <input type="radio" id="senseUnion"
+     name="sense" value="U" {% if i.sense == 'U' %}checked{% endif %}>
+    <label for="senseUnion">Any tag</label>
+    <br/>
+    <label for="caseSensitive">Match case</label>
+        <input type="checkbox" id="caseSensitive" name="caseSensitive" value="Y" {% if i.case_sensitive == 'Y' %}checked{% endif %}>
+        <br/>
+     <label for="parts">Match parts of tags</label>
+        <input type="checkbox" id="parts" name="parts" value="Y" {% if i.parts == 'Y' %}checked{% endif %}>
+        <br/>
+
+        <input type="submit" value="go">
+    </form>
+    </li>
+</ul>
+{% endwith %}

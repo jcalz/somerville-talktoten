@@ -1,0 +1,70 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+    <h2>Send reminder email</h2>
+    <div><b>Recipients:</b>
+        {% for user in users %}
+            {% if not user.email %}
+                <del>{{ user.username }}</del><a href="#no-email"><sup>*</sup></a>
+            {% elif not user.num_pending_contacts %}
+                <del>{{ user.username }}</del><a href="#no-pending-contacts"><sup>&dagger;</sup></a>
+            {% else %}
+                <span style="">{{ user.username }}</span>
+            {% endif %}
+            {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+        <div style="font-size: 90%; font-style: italic">
+            {% for user in users %}
+                {% if not user.email %}
+                    {% ifchanged %}<a name="#no-email"><sup>*</sup></a>This user has no email address; no reminder email
+                        will be sent.<br>{% endifchanged %}
+                {% endif %}
+            {% endfor %}
+            {% for user in users %}
+                {% if user.email and not user.num_pending_contacts %}
+                    {% ifchanged %}<a name="#no-email"><sup>&dagger;</sup></a>This user has no pending contacts; no
+                        reminder email will be sent.{% endifchanged %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if emailable_users %}
+
+        {% if msg_previews %}
+            <h3>PREVIEW OF MESSAGES TO BE SENT:</h3>
+            <div style="height: 30em; overflow-y: scroll; border: 2px black inset;">
+                {% for msg_preview in msg_previews %}
+                    <pre><code>{{ msg_preview.headers }}</code></pre>
+                    <div style="font-size: 90%; line-height: 80%">{{ msg_preview.body }}</div>
+                    {% if not forloop.last %}
+                        <hr>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <br>
+        {% endif %}
+        <form action="" method="post">
+            {% csrf_token %}
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+            <div>
+                <label>Text to add to email:<br><textarea cols="100" rows="10" name="added_text">{% if added_text %}
+                    {{ added_text }}{% endif %}</textarea></label><br/>
+                <button type="submit" name="preview" value="preview">Preview</button>
+                <button type="button" onclick="location.href='{{ next|escapejs }}'">Cancel</button>
+                <button type="submit" onclick="return confirm('Are you sure you want to send emails?.');">Send Email
+                    Now
+                </button>
+            </div>
+        </form>
+    {% else %}
+        <p></p>
+        <p>Sorry, none of the selected users can receive a reminder email.</p>
+        <div>
+            <button type="button" onclick="location.href='{{ next|escapejs }}'">Cancel</button>
+        </div>
+    {% endif %}
+{% endblock %}
+

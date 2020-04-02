@@ -1,0 +1,38 @@
+label {
+    vertical-align: top;
+}
+
+label.disabled {
+    color: #ccc
+}
+
+legend[data-toggle]:after {
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";
+    float: left;
+    color: grey;
+}
+legend[data-toggle].collapsed:after {
+    content: "\e080";
+}
+
+.match-grid select {
+    max-width: 20em;
+    text-overflow: ellipsis;
+}
+
+.optional-column {
+    display: none;
+}
+
+.break-after {
+    display: block;
+    page-break-after: always;
+    position: relative;
+}
+
+.break-before {
+    display: block;
+    page-break-before: always;
+    position: relative;
+}

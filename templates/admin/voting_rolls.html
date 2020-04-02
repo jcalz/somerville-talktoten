@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting Rolls</title>
+    <style>
+        html {
+            font: 0.8em "Open Sans", sans-serif;
+        }
+
+        table {
+       border-collapse: collapse;
+        width: 100%;
+    }
+        th,td{
+            text-align: left;
+            padding: 8px;
+            border: 1px solid gray;
+        }
+        .break {page-break-after: always;}
+        @media screen {
+            .break {
+                border-bottom: 3px dotted gray;
+                margin-top: 1em;
+                margin-bottom: 1em;
+            }
+        }
+        @media print  {
+            .no-print {
+              display: none;
+            }
+        }
+        .intro {
+            border: 1px solid black;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="no-print">
+    <h2>Voting Rolls document</h2>
+        (This section should not appear when you print the document)<br>
+    <br>
+    </div>
+
+    <div class="no-print break"><br></div>
+
+    {% for polling_place in polling_places %}
+        {% if not forloop.first %}<div class="break"><br></div>{% endif %}
+        <table>
+        <thead>
+      <tr>
+          <th colspan="100"><h2>
+              Ward {{polling_place.polling_place.ward_number}},
+              Precinct {{polling_place.polling_place.precinct_number}}</h2>
+            {{ polling_place.polling_place.name }}, {{ polling_place.polling_place.address }}
+          </th>
+      </tr>
+        <tr>
+            <th> Address </th>
+            <th> Last, First </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for resident in polling_place.residents %}
+            {% ifchanged  resident.household.street %}
+            <tr>
+             <th colspan="100"><h3>{{ resident.household.street }}</h3></th>
+            </tr>
+            {% endifchanged %}
+          <tr>
+            <td>{{ resident.household.address }}</td>
+            <td>{{ resident.last_name }}, {{ resident.first_name }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    {% endfor %}
+
+
+</body>
+
+</html>

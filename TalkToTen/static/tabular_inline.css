@@ -1,0 +1,10 @@
+.tabular td {
+    padding: 5px 6px;
+}
+
+.inline-group .tabular td.original p {
+    display: none
+}
+.inline-group .tabular tr.has_original td {
+    padding-top: inherit;
+}

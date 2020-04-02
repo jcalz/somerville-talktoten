@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <div class="container">
+    <h2>Send contact email</h2>
+        <form action="" method="post" class="form-horizontal">
+            {% csrf_token %}
+            <div>
+                <div class="form-group row">
+                    <label class="control-label col-xs-1" for="subject">Subject:</label>
+                    <div class="col-xs-11"><input class="form-control" type="text" name="subject" value="{{ subject }}"></div>
+                </div>
+                <div class="form-group row">
+                    <label class="control-label col-xs-1" for="from_email">From:</label>
+                    <div class="col-xs-11"><input class="form-control" type="text" name="from_email" value="{{ from_email }}" disabled="disabled"></div>
+                </div>
+                <div class="form-group row">
+                    <label class="control-label col-xs-1" for="to">To:</label>
+                    <div class="col-xs-11"><input class="form-control" type="text" name="to" value="{{ to }}" disabled="disabled"></div>
+                </div>
+                {% if cc %}
+                <div class="form-group row">
+                    <label class="control-label col-xs-1" for="cc">Cc:</label>
+                    <div class="col-xs-11"><input class="form-control" type="text" name="cc" value="{{ cc }}" disabled="disabled"></div>
+                </div>
+                {% endif %}
+                {% if bcc %}
+                <div class="form-group row">
+                    <label class="control-label col-xs-1" for="bcc">Bcc:</label>
+                    <div class="col-xs-11"><input class="form-control" type="text" name="bcc" value="{{ bcc }}" disabled="disabled"></div>
+                </div>
+                {% endif %}
+                {% if reply_to %}
+                <div class="form-group row">
+                    <label class="control-label col-xs-1" for="reply_to">Reply-To:</label>
+                    <div class="col-xs-11"><input class="form-control" type="text" name="reply_to" value="{{ reply_to }}" disabled="disabled"></div>
+                </div>
+                {% endif %}
+                <div class="form-group">
+                    <label class="control-label col-xs-1" for="body">Body:</label>
+                    <div class="col-xs-11"><textarea class="form-control" cols="100" rows="10" name="body">{% if body %}{{ body }}{% endif %}</textarea></div>
+                </div>
+                <div class="form-group">
+
+                <div class="col-xs-offset-1 col-xs-10">
+                    <button class="btn btn-primary" type="submit" onclick="return confirm('Are you sure you want to send this email?');">Send Email</button>
+                    <button class="btn" type="button" onclick="location.href='{% url 'contacts' %}'; return false;">Cancel</button>
+                </div>
+
+    </div>
+
+            </div>
+        </form>
+        </div>
+{% endblock %}
+
+
+
+

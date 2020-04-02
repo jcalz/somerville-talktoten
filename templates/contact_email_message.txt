@@ -1,0 +1,16 @@
+Hello {% for contact_record in contact_records %}{{ contact_record.resident.first_name }}{% if not forloop.last %}{% ifequal forloop.revcounter 2 %} and {% else %}, {% endifequal %}{% else %}{% endif %}{% endfor %}  –
+
+I am writing to let you know about Stephanie Hirsch, who is running for Alderman at Large. She has almost 20 years of experience in management of cities and schools, and has also been an active member of our community for the last 13 years. She hopes to promote good government, focusing on issues like affordability of neighborhoods, strong schools and community organizations, and solutions to the opioid epidemic. She hopes Somerville can be a proving ground for ideas on environmental sustainability and safe streets. Stephanie also hopes to help our community become even more connected.
+
+You can find more about Stephanie’s campaign and ways to help below.
+
+Thanks,
+{{ user.get_full_name }}
+
+Please consider learning more in one of these ways:
+
+Attend an upcoming event: http://tinyurl.com/stephanieforsomerville-events
+
+Sign up to help with Stephanie’s campaign here: http://tinyurl.com/stephanieforsomerville-signup
+
+Like Stephanie’s Facebook page: http://tinyurl.com/stephanieforsomerville-facebk

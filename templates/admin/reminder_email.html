@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reminder from TalkToTen</title>
+</head>
+<body>
+    <p>Dear {{ user.get_short_name | default:user.username | default:'Nameless User' }},</p>
+    <p>This is the TalkToTen App with a friendly reminder that you have <a href="https://talktoten.stephanieforsomerville.com{% url 'contacts' %}">{{ pending_contact_records|length }} contact{{ pending_contact_records|length|pluralize }} pending</a>:</p>
+    <ul>
+    {% for contact_record in pending_contact_records %}
+        <li>{{ contact_record.resident.identifying_information}}, (last updated {{ contact_record.modified | timesince }} ago)</li>
+    {% endfor %}
+    </ul>
+    {{ added_text|linebreaks }}
+    <p>Please finish {{ pending_contact_records|length|pluralize:"it,them"}} when you have a chance.  Thanks!</p>
+    <p>For questions, contact: <a href="mailto:TTT@stephanieforsomerville.com">TTT@stephanieforsomerville.com</a>.</p>
+
+    <p>Yours,</p>
+    <p>The TalkToTen App</p>
+</body>
+</html>

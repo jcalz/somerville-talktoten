@@ -1,0 +1,23 @@
+{% load i18n %}
+<script type="text/javascript">var go = function(addr, dist) {
+    var val = addr.trim()+'!'+dist.trim();
+    var search = window.location.search.replace(/[?&]distance=[^&]*/i,'').replace(/^&/,'?');
+    if (val !== '!') {
+        if (search.trim()==='')
+            search = '?';
+        search += (search.endsWith('?')?'':'&') + 'distance='+encodeURIComponent(val);
+    }
+    window.location = window.location.pathname + search;
+};</script>
+<h3>By {{ title }}</h3>
+{% with choices.0 as i %}
+<ul class="admin-filter-{{ title|cut:' ' }}">
+    <li>
+    <form method="get" onsubmit="go(this.addr.value,this.dist.value); return false;">
+            within <input type="number" min="0" step="0.01" name="dist" value="{{ i.dist|default_if_none:"" }}"/> miles of
+            <input type="text" name="addr" value="{{ i.addr|default_if_none:"" }}"/>
+            <input type="submit" value="go">
+    </form>
+    </li>
+</ul>
+{% endwith %}

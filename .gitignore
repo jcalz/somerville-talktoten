@@ -1,0 +1,11 @@
+__pychache__/
+*.py[cod]
+*$py.class
+
+*~
+
+# virtual env
+/Campaignenv
+
+.idea/
+CampaignDatabase

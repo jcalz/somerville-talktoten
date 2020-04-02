@@ -1,0 +1,23 @@
+{% load i18n %}
+<script type="text/javascript">var goAge = function(fromAge, toAge) {
+    var val = fromAge.trim()+'!'+toAge.trim();
+    var search = window.location.search.replace(/[?&]age=[^&]*/i,'').replace(/^&/,'?');
+    if (val !== '!') {
+        if (search.trim()==='')
+            search = '?';
+        search += (search.endsWith('?')?'':'&') + 'age='+encodeURIComponent(val);
+    }
+    window.location = window.location.pathname + search;
+};</script>
+<h3>By {{ title }}</h3>
+{% with choices.0 as i %}
+<ul class="admin-filter-{{ title|cut:' ' }}">
+    <li>
+    <form method="get" onsubmit="goAge(this.fromAge.value,this.toAge.value); return false;">
+            Minimum age: <input type="number" min="0" step="1" name="fromAge" value="{{ i.fromAge|default_if_none:"" }}"/>
+            Maximum age: <input type="number" min="0" step="1" name="toAge" value="{{ i.toAge|default_if_none:"" }}" />
+            <input type="submit" value="go">
+    </form>
+    </li>
+</ul>
+{% endwith %}

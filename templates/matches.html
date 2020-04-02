@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+{% if pending_contacts %}
+<button class="btn" onclick="location.href='../contacts/'; return false;">Manage contacts</button>
+{% endif %}
+    {% if potential_matches %}
+    <hr>
+    <h4>Results</h4>
+    <form action="../addcontacts/" method="post">
+    <input type="submit" value="Add to Contacts" >
+    {%  csrf_token %}
+    {% for potential_match in potential_matches %}
+    <div class="form-check">
+        <label class="form-check-label{% if potential_match.unavailable %} disabled{% endif %}"  >
+        <input type="checkbox" class="form-check-input" name="id" value="{{ potential_match.id }}" {% if potential_match.unavailable %}disabled="disabled"{% endif %} >
+            {{ potential_match.identifying_information }}
+        </label>
+        </div>
+    {% endfor %}
+    <input type="submit" value="Add to Contacts" >
+    </form>
+{% endif %}
+<hr>
+<h4>Search for potential matches:</h4>
+    <form action="" method="post">
+            <button type="submit" style="display:none">Find potential contact</button>
+    {%  csrf_token %}
+        {% if user_resident %}
+            <p>You're a resident! Try a <button class="btn" type="submit" name="as_resident">Quick Search</button> based on your information</p>
+            <p>or fill out these fields for a custom search:</p>
+        {% endif %}
+    {{ form.as_p }}
+        <button type="submit" class="btn">Find potential contact</button>
+</form>
+
+<hr>
+
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $(function(){
+        var forms = $('form');
+        forms.find('fieldset').addClass('form-group');
+        forms.find('input,select,textarea,button').addClass('form-control-input');
+        forms.find('input[type=file]').addClass('form-control-file');
+    });
+
+</script>
+{% endblock %}

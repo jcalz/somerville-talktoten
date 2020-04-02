@@ -1,0 +1,6 @@
+.field-box {
+    border-left: 1px solid lightgray;
+    border-right: 1px solid lightgray;
+    padding: 0px 10px 0px 10px;
+    margin-right: 0 !important;
+}
